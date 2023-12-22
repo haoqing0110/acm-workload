@@ -33,7 +33,7 @@ for((i=1;i<=$count;i++))
 do
       app_ns="app${i}"
 
-      cat $resource_template | sed -e "s/\<CLUSTER-NAME\>/${cluster_name}/g; s/\<APP-NS\>/${app_ns}/g" >> _output/$resource_template
+      cat $resource_template | sed -e "s/<CLUSTER-NAME>/${cluster_name}/g; s/<APP-NS>/${app_ns}/g" >> _output/$resource_template
 done
 
 kubectl apply -f _output/$resource_template
