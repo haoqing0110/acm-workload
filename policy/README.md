@@ -1,7 +1,7 @@
 ### Usage
 
-Generate 5 policy on cluster1.
+Generate 10 policy on cluster1.
 
 ```bash
-$ ./run.sh apply resource.yaml 5 cluster1
+$ ./run.sh apply resource.yaml 10 cluster1
 ```
