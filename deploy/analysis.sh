@@ -17,6 +17,8 @@ fi
 folder_name=$BASE_DIR/$cluster_name
 analysis_file=$folder_name/acm_analysis
 analysis_file_relative_path="./$cluster_name/acm_analysis"
+mc_file=$folder_name/acm_managedcluster
+cronjob_file=$folder_name/acm_cronjob
 
 # Function to gather metrics and perform analysis
 gather_and_analyze() {
@@ -24,6 +26,7 @@ gather_and_analyze() {
     local base_timestamp=$2
     local start_offset=$3
     local end_offset=$4
+    local name=$5
 
     if [ "$base_timestamp" = "null" ]; then
         echo "no base timestamp"
@@ -38,39 +41,37 @@ gather_and_analyze() {
     local end_unix_timestamp=$(echo "$base_unix_timestamp + $end_offset * 3600" | bc)
     local end_timestamp=$(date -u -d "@$end_unix_timestamp" +"%Y-%m-%d %H:%M:%S")
 
-    python3 $BASE_DIR/src/statistics/entry.py "$folder_name" "$start_timestamp" "$end_timestamp" >> $analysis_file
+    python3 $BASE_DIR/src/statistics/entry.py "$folder_name" "$start_timestamp" "$end_timestamp" "$name" >> $analysis_file
 }
 
-# managed cluster create time
-mc_timestamp=$(${KUBECTL} get managedcluster $cluster_name  -o json | jq -r '.metadata.creationTimestamp')
-gather_and_analyze "$folder_name" "$mc_timestamp" "-2" "0"
-gather_and_analyze "$folder_name" "$mc_timestamp" "1" "6"
+# save managed cluster
+if [ -f "$mc_file" ]; then 
+    echo "File '$mc_file' already exists."
+else
+    ${KUBECTL} get managedcluster $cluster_name  -o json > "$mc_file" 
+    echo "Save managed cluster into file '$mc_file'."
+fi
 
-# app cron job schedule time
-app_schedule_timestamp=$(${KUBECTL} get cronjob app-create-${cluster_name} -o json | jq -r '.status.lastScheduleTime')
-gather_and_analyze "$folder_name" "$app_schedule_timestamp" "0.5" "1.5"
+# save cron job list
+if [ -f "$cronjob_file" ]; then
+    echo "File '$cronjob_file' already exists."
+else
+    ${KUBECTL} get cronjob --template '{{range .items}}{{.metadata.name}}{{"\t"}}{{.status.lastScheduleTime}}{{"\n"}}{{end}}' > "$cronjob_file"
+    echo "Save cronjob into file '$cronjob_file'."
+fi
 
-# policy cron job schedule time
-policy_schedule_timestamp=$(${KUBECTL} get cronjob policy-create-$cluster_name -o json | jq -r '.status.lastScheduleTime')
-gather_and_analyze "$folder_name" "$policy_schedule_timestamp" "0.5" "1.5"
+# get managed cluster create time
+mc_timestamp=$(cat $mc_file | jq -r '.metadata.creationTimestamp')
 
-# obs cron job schedule time
-obs_schedule_timestamp=$(${KUBECTL} get cronjob obs-create-$cluster_name -o json | jq -r '.status.lastScheduleTime')
-gather_and_analyze "$folder_name" "$obs_schedule_timestamp" "0.5" "1.5"
+gather_and_analyze "$folder_name" "$mc_timestamp" "-2" "0" "no acm"
+gather_and_analyze "$folder_name" "$mc_timestamp" "1" "6" "idle acm"
 
-# enable-app
-enable_app_schedule_timestamp=$(${KUBECTL} get cronjob enable-app-$cluster_name -o json | jq -r '.status.lastScheduleTime')
-gather_and_analyze "$folder_name" "$enable_app_schedule_timestamp" "0.5" "1.5"
+# get cron job list
+cron_job_list=($(cat $cronjob_file | grep create-${cluster_name} | awk '{print $1}'))
 
-# enable-policy-proxy
-enable_policy_proxy_schedule_timestamp=$(${KUBECTL} get cronjob enable-policy-proxy-$cluster_name -o json | jq -r '.status.lastScheduleTime')
-gather_and_analyze "$folder_name" "$enable_policy_proxy_schedule_timestamp" "0.5" "1.5"
-
-# enable-policy-search
-enable_policy_search_schedule_timestamp=$(${KUBECTL} get cronjob enable-policy-search-$cluster_name -o json | jq -r '.status.lastScheduleTime')
-gather_and_analyze "$folder_name" "$enable_policy_search_schedule_timestamp" "0.5" "1.5"
-
-# enable-all
-enable_all_schedule_timestamp=$(${KUBECTL} get cronjob enable-all-$cluster_name -o json | jq -r '.status.lastScheduleTime')
-gather_and_analyze "$folder_name" "$enable_all_schedule_timestamp" "0.5" "1.5"
-echo "The analysis is complete, details see $analysis_file_relative_path"
+for job in "${cron_job_list[@]}"
+do
+    echo "analysising $job ..."
+    job_schedule_timestamp=($(cat $cronjob_file | grep ${job} | awk '{print $2}'))
+    gather_and_analyze "$folder_name" "$job_schedule_timestamp" "0.5" "1.5" $job
+done

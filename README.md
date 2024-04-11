@@ -67,10 +67,6 @@ $ kubectl get cronjob
 NAME                            SCHEDULE        SUSPEND   ACTIVE   LAST SCHEDULE   AGE
 app-create-cluster1             40 14 08 01 1   False     0        <none>          65s
 app-delete-cluster1             10 16 08 01 1   False     0        <none>          65s
-enable-all-cluster1             40 23 08 01 1   False     0        <none>          65s
-enable-app-cluster1             10 19 08 01 1   False     0        <none>          65s
-enable-policy-proxy-cluster1    40 20 08 01 1   False     0        <none>          65s
-enable-policy-search-cluster1   10 22 08 01 1   False     0        <none>          65s
 obs-create-cluster1             40 17 08 01 1   False     0        <none>          65s
 obs-delete-cluster1             10 19 08 01 1   False     0        <none>          65s
 policy-create-cluster1          10 16 08 01 1   False     0        <none>          65s
@@ -87,7 +83,7 @@ my-cronjob   ClusterRole/cluster-admin   2m58s
 
 ### Analysis the resource usage
 
-Gather metrics and analysis after ahout 16 hours.
+Gather metrics and analysis after ahout 11 hours.
 
 Export the **managed** cluster URL and token to the `OC_CLUSTER_URL` and `OC_TOKEN`.
 

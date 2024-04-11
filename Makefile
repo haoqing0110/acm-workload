@@ -104,6 +104,9 @@ enable-cluster-proxy:
 disable-cluster-proxy:
 	${KUBECTL} patch multiclusterengine multiclusterengine -p '{"spec":{"overrides":{"components":[{"enabled":false,"name":"cluster-proxy-addon"}]}}}' --type=merge
 
+disable-managedserviceaccount:
+	${KUBECTL} patch multiclusterengine multiclusterengine -p '{"spec":{"overrides":{"components":[{"enabled":false,"name":"managedserviceaccount"}]}}}' --type=merge
+
 enable-obs:
 	./hack/addons/enable-obs.sh $(MANAGED_CLUSTER_NAME)
 
@@ -126,10 +129,10 @@ disable-obs:
 	echo "WARNING: This will disable the observability addon for all managed clusters"
 	${KUBECTL} delete -f hack/addons/multiclusterobservability_cr.yaml || true
 
-enable-app-search-obs: enable-app enable-search disable-policy disable-cluster-proxy
-enable-policy-search-obs: enable-policy enable-search disable-app disable-cluster-proxy
-enable-policy-proxy-obs: enable-policy enable-cluster-proxy disable-app disable-search
-enable-all: enable-obs-from-scratch enable-app enable-policy enable-search enable-cluster-proxy
+enable-app-search-obs: enable-app enable-search disable-policy disable-cluster-proxy disable-managedserviceaccount
+enable-policy-search-obs: enable-policy enable-search disable-app disable-cluster-proxy disable-managedserviceaccount
+enable-policy-proxy-obs: enable-policy enable-cluster-proxy disable-app disable-search disable-managedserviceaccount
+enable-all: enable-obs-from-scratch enable-app enable-policy enable-search enable-cluster-proxy disable-managedserviceaccount
 
 
 # Check that given variables are set and all have non-empty values,

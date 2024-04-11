@@ -9,6 +9,7 @@ def main():
     data_folder = sys.argv[1]
     start_time_str = sys.argv[2]
     end_time_str = sys.argv[3]
+    name = sys.argv[4]
 
     start_time = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
     end_time = datetime.strptime(end_time_str, "%Y-%m-%d %H:%M:%S")
@@ -17,8 +18,9 @@ def main():
     print(
         "************************************************************************************************"
     )
-    print("Starting datetime for History collection - ", start_time)
-    print("End datetime for History collection      - ", end_time)
+    print("Name: ", name)
+    print("Starting datetime for History collection: ", start_time)
+    print("End datetime for History collection: ", end_time)
     print(f"Input data folder: ", data_folder)
     print(
         "************************************************************************************************"
@@ -54,12 +56,12 @@ def main():
     print("CPU average:")
     for key, value in cpu_mean_values.items():
         rounded_value = round(value, 4)
-        print(f"{key}: {rounded_value}")
+        print(f"{key}\t{rounded_value}")
 
     print("Memory average:")
     for key, value in mem_mean_values.items():
         rounded_value = round(value, 1)
-        print(f"{key}: {rounded_value}")
+        print(f"{key}\t{rounded_value}")
 
 def filter_and_average(path, start_time, end_time, debug=True):
     df = pd.read_csv(path, sep=",")
@@ -74,8 +76,3 @@ def filter_and_average(path, start_time, end_time, debug=True):
 
 if __name__ == "__main__":
     main()
-
-
-
-
-

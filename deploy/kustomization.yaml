@@ -1,12 +1,2 @@
 resources:
 - cluserrolebinding.yaml
-- ./output/job_app_create.yaml
-- ./output/job_app_delete.yaml
-- ./output/job_policy_create.yaml
-- ./output/job_policy_delete.yaml
-- ./output/job_obs_create.yaml
-- ./output/job_obs_delete.yaml
-- ./output/job_enable_all_create.yaml
-- ./output/job_enable_app_create.yaml
-- ./output/job_enable_policy_search_create.yaml
-- ./output/job_enable_policy_proxy_create.yaml

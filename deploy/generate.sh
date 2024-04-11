@@ -13,7 +13,14 @@ fi
 # Function to calculate and format cron schedule given timestamp
 calculate_and_format_cron_schedule() {
     local timestamp=$(date -u -d "@$1" +"%Y-%m-%dT%H:%M:%SZ")
-    local cron_schedule=$(date -u -d "$timestamp" "+%M %H %d %m %u")
+
+    # Adjust day_of_week to 0 if it's 7 (Sunday)
+    local day_of_week=$(date -u -d "$timestamp" "+%u")
+    if [ "$day_of_week" -eq 7 ]; then
+        day_of_week=0
+    fi
+
+    local cron_schedule=$(date -u -d "$timestamp" "+%M %H %d %m $day_of_week")
     echo "$cron_schedule"
 }
 
@@ -24,6 +31,7 @@ create_yaml_file_from_template() {
 
     if [ -e "$template" ]; then
         sed -e "s/<CRON_SCHEDULE>/${3}/g; s/<CLUSTER_NAME>/${cluster_name}/g" "$template" > "$output_file"
+        echo "- $output_file" >> kustomization.yaml
     fi
 
 }
@@ -63,7 +71,8 @@ echo "managed cluster creationTimestamp: $mc_timestamp"
 create_yaml_by_offset "$mc_timestamp" "6" "7.5" "job_app"
 create_yaml_by_offset "$mc_timestamp" "7.5" "9" "job_policy"
 create_yaml_by_offset "$mc_timestamp" "9" "10.5" "job_obs"
-create_yaml_by_offset "$mc_timestamp" "10.5" "12" "job_enable_app"
-create_yaml_by_offset "$mc_timestamp" "12" "13.5" "job_enable_policy_proxy"
-create_yaml_by_offset "$mc_timestamp" "13.5" "15" "job_enable_policy_search"
-create_yaml_by_offset "$mc_timestamp" "15" "16.5" "job_enable_all"
+# uncomments below code when testing benchmark for addon combinations
+#create_yaml_by_offset "$mc_timestamp" "10.5" "12" "job_enable_app"
+#create_yaml_by_offset "$mc_timestamp" "12" "13.5" "job_enable_policy_proxy"
+#create_yaml_by_offset "$mc_timestamp" "13.5" "15" "job_enable_policy_search"
+#create_yaml_by_offset "$mc_timestamp" "15" "16.5" "job_enable_all"
