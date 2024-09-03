@@ -1,0 +1,13 @@
+# ManagedClusterSet = ManagedCluster/5
+apiVersion: cluster.open-cluster-management.io/v1beta2
+kind: ManagedClusterSet
+metadata:
+  name: clusterset-GROUP
+---
+apiVersion: cluster.open-cluster-management.io/v1beta2
+kind: ManagedClusterSetBinding
+metadata:
+  name: clusterset-GROUP
+  namespace: default
+spec:
+  clusterSet: clusterset-GROUP

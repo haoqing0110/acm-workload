@@ -1,0 +1,41 @@
+apiVersion: view.open-cluster-management.io/v1beta1
+kind: ManagedClusterView
+metadata:
+  name: my-mcv-NUM
+  namespace: MANAGED_CLUSTER_NAME
+spec:
+  scope:
+    name: hello-NUM
+    namespace: default 
+    resource: Deployment
+---
+apiVersion: action.open-cluster-management.io/v1beta1
+kind: ManagedClusterAction
+metadata:
+  name: my-action-create-NUM
+  namespace: MANAGED_CLUSTER_NAME
+spec:
+  actionType: Create
+  kube:
+    resource: deployment
+    namespace: default
+    template:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: my-action-create-deploy-NUM
+      spec:
+        selector:
+          matchLabels:
+            app: nginx
+        replicas: 2
+        template:
+          metadata:
+            labels:
+              app: nginx
+          spec:
+            containers:
+            - name: nginx
+              image: nginx:1.7.9
+              ports:
+              - containerPort: 80

@@ -84,8 +84,8 @@ disable-app:
 
 enable-policy:
 	${KUBECTL} patch klusterletaddonconfig -n ${MANAGED_CLUSTER_NAME} ${MANAGED_CLUSTER_NAME} -p='{"spec":{"policyController":{"enabled": true}}}' --type=merge
-	${KUBECTL} patch klusterletaddonconfig -n ${MANAGED_CLUSTER_NAME} ${MANAGED_CLUSTER_NAME} -p='{"spec":{"iamPolicyController":{"enabled": false}}}' --type=merge
-	${KUBECTL} patch klusterletaddonconfig -n ${MANAGED_CLUSTER_NAME} ${MANAGED_CLUSTER_NAME} -p='{"spec":{"certPolicyController":{"enabled": false}}}' --type=merge
+	${KUBECTL} patch klusterletaddonconfig -n ${MANAGED_CLUSTER_NAME} ${MANAGED_CLUSTER_NAME} -p='{"spec":{"iamPolicyController":{"enabled": true}}}' --type=merge
+	${KUBECTL} patch klusterletaddonconfig -n ${MANAGED_CLUSTER_NAME} ${MANAGED_CLUSTER_NAME} -p='{"spec":{"certPolicyController":{"enabled": true}}}' --type=merge
 
 disable-policy:
 	${KUBECTL} patch klusterletaddonconfig -n ${MANAGED_CLUSTER_NAME} ${MANAGED_CLUSTER_NAME} -p='{"spec":{"policyController":{"enabled": false}}}' --type=merge
@@ -132,7 +132,7 @@ disable-obs:
 enable-app-search-obs: enable-app enable-search disable-policy disable-cluster-proxy disable-managedserviceaccount
 enable-policy-search-obs: enable-policy enable-search disable-app disable-cluster-proxy disable-managedserviceaccount
 enable-policy-proxy-obs: enable-policy enable-cluster-proxy disable-app disable-search disable-managedserviceaccount
-enable-all: enable-obs-from-scratch enable-app enable-policy enable-search enable-cluster-proxy disable-managedserviceaccount
+enable-all: enable-obs-from-scratch enable-policy
 
 
 # Check that given variables are set and all have non-empty values,
