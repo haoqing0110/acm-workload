@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Namespace where the resources are located
-NAMESPACE="cluster-1"
+NAMESPACE="local-cluster"
 
 # Get the list of resources
 RESOURCES=$(kubectl get manifestwork -n $NAMESPACE -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
@@ -22,8 +22,14 @@ for RESOURCE in $RESOURCES; do
   # Export the resource as JSON
   kubectl get manifestwork $RESOURCE -n $NAMESPACE -o json > "$EXPORT_DIR/$RESOURCE.json"
   
-  # Get the file size in bytes and convert to KB
-  FILE_SIZE=$(stat --format="%s" "$EXPORT_DIR/$RESOURCE.json")
+  # Get file size in bytes based on OS
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    FILE_SIZE=$(stat -f %z "$EXPORT_DIR/$RESOURCE.json")
+  else
+    # Linux
+    FILE_SIZE=$(stat --format="%s" "$EXPORT_DIR/$RESOURCE.json")
+  fi
   FILE_SIZE_KB=$(echo "scale=2; $FILE_SIZE/1024" | bc)
   
   # Store the file size in the array
